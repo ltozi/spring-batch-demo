@@ -1,7 +1,6 @@
 package com.example.batchprocessing;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -66,6 +65,15 @@ public class BatchConfiguration {
     public Job importUserJob(JobCompletionNotificationListener listener, Step step1) {
         return jobBuilderFactory.get("importUserJob")
                 .incrementer(new RunIdIncrementer())
+
+                //Use this for restart
+//                .incrementer(new JobParametersIncrementer() {
+//                    @Override
+//                    public JobParameters getNext(JobParameters parameters) {
+//                        JobParameter put = parameters.getParameters().put("run.id", new JobParameter(3L));
+//                        return parameters;
+//                    }
+//                })
                 .listener(listener)
                 .flow(step1)
                 .end()
