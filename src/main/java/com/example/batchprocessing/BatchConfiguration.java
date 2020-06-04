@@ -111,7 +111,7 @@ public class BatchConfiguration {
                 .reader(reader())
                 .processor(processor())
                 .writer(writer)
-//                .taskExecutor(taskExecutor()).throttleLimit(5)
+                .taskExecutor(taskExecutor()).throttleLimit(MAX_THREAD)
                 .build();
     }
     // end::jobstep[]
