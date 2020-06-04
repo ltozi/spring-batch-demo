@@ -76,7 +76,7 @@ public class Fee12MonthJobConfiguration {
                 .resource(new FileSystemResource("output/fee12MonthDataset.csv"))
                 .delimited()
                 .delimiter(",")
-                .fieldExtractor(new BeanWrapperFieldExtractor<>())
+                .names(new String[] {"id", "pan", "mobileNumber", "migrated"})
                 .build();
     }
 
