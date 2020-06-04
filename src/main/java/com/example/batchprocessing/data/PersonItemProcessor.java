@@ -1,4 +1,4 @@
-package com.example.batchprocessing;
+package com.example.batchprocessing.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

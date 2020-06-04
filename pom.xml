@@ -14,6 +14,21 @@
 	<name>batch-processing</name>
 	<description>Demo project for Spring Boot</description>
 
+	<distributionManagement>
+		<repository>
+			<id>nexi.repo</id>
+			<name>NEXI Artifactory Repository</name>
+			<uniqueVersion>false</uniqueVersion>
+			<url>https://artifactory.nexicloud.it/artifactory/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexi.snap.repo</id>
+			<name>NEXI Artifactory Repository</name>
+			<uniqueVersion>false</uniqueVersion>
+			<url>https://artifactory.nexicloud.it/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -40,6 +55,28 @@
 			<artifactId>spring-batch-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>it.ubiquity.client-orchestratore</groupId>
+			<artifactId>client-orchestratore</artifactId>
+			<version>1.3.2</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>it.ubiquity.gestoredb</groupId>
+			<artifactId>gestoredb</artifactId>
+			<version>1.6</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>it.ubiquity.gestorebatch.icbpi</groupId>
+			<artifactId>gestorebatch-dataobjects</artifactId>
+			<version>1.5.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!--<dependency>-->
 			<!--<groupId>org.springframework.boot</groupId>-->
 			<!--<artifactId>spring-boot-starter-web</artifactId>-->
