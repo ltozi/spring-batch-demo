@@ -9,6 +9,19 @@ Precondition:
 1. Use a database (embeddded on file is fine). Spring batch auto creates its
 database on the first startup
 
+Running HSQLDB in server mode
+
+```
+java -cp ~/.m2/repository/org/hsqldb/hsqldb/2.5.0/hsqldb-2.5.0.jar org.hsqldb.server.Server --database.0 file:~/db/mydb --dbname
+```
+
+Running Client GUI
+
+```
+java -cp ~/.m2/repository/org/hsqldb/hsqldb/2.5.0/hsqldb-2.5.0.jar org.hsqldb.util.DatabaseManagerSwing
+```
+
+
 ```
 #A default dabase on file is defined
 
