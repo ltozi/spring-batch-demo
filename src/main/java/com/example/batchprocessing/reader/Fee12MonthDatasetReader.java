@@ -2,17 +2,19 @@ package com.example.batchprocessing.reader;
 
 import com.example.batchprocessing.data.FeeDTO;
 import com.example.batchprocessing.service.GestoreDbWrapper;
-import it.ubiquity.gestoreprofilazione.dataobjects.Esito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 
 public class Fee12MonthDatasetReader implements ItemReader<FeeDTO> {
+
+    private static final Logger log = LoggerFactory.getLogger(Fee12MonthDatasetReader.class);
 
 
 //    @Autowired //TODO add @Bean in config class
@@ -72,13 +74,14 @@ public class Fee12MonthDatasetReader implements ItemReader<FeeDTO> {
         //Data stub
         for (int i = 1; i <= 100_000; i++) {
             FeeDTO feeDTO = new FeeDTO();
-            feeDTO.id = Long.parseLong(String.valueOf(i));
-            feeDTO.pan = String.valueOf(UUID.randomUUID()).substring(16);
-            feeDTO.mobileNumber = "+393289499400";
+            feeDTO.setId(Long.parseLong(String.valueOf(i)));
+            feeDTO.setPan(String.valueOf(UUID.randomUUID()).substring(16));
+            feeDTO.setMobileNumber("+393289499400");
 
             data.add(feeDTO);
         }
 
+        log.info("Done fetching dataset");
         return data;
     }
 }
