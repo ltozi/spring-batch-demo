@@ -30,28 +30,21 @@ public class Fee12MonthDatasetReader implements ItemReader<FeeDTO> {
     private GestoreDbWrapper gestoreDb;
 
     public Fee12MonthDatasetReader() {
-
     }
 
 
     @Override
-    public FeeDTO read() throws Exception {
-
+    synchronized public FeeDTO read() throws Exception {
         //Do web service call only once
         if (isInitialized()) {
+
             data = fetchDataFromNexiDb();
         }
 
         FeeDTO nextStudent = null;
-
         if (itemIndex < data.size()) {
             nextStudent = data.get(itemIndex);
-
-            synchronized(this) {
-                itemIndex++;
-            }
-
-
+            itemIndex++;
         }
 
         return nextStudent;
@@ -73,10 +66,10 @@ public class Fee12MonthDatasetReader implements ItemReader<FeeDTO> {
 
         //Data stub
         int howMany = 100_000;
-      //  howMany = 200;
+        //     howMany = 1000;
         for (int i = 1; i <= howMany; i++) {
             FeeDTO feeDTO = new FeeDTO();
-            feeDTO.setId(Long.parseLong(String.valueOf(i)));
+            feeDTO.setId(0L + i);
             feeDTO.setPan(String.valueOf(UUID.randomUUID()).substring(16));
             feeDTO.setMobileNumber("+393289499400");
 
