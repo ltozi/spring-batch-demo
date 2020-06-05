@@ -101,6 +101,7 @@ public class Fee12MonthJobConfiguration {
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<FeeDTO>() {{
                     setTargetType(FeeDTO.class);
                 }})
+                .saveState(false)
                 .build();
     }
 
@@ -152,7 +153,7 @@ public class Fee12MonthJobConfiguration {
     /**
      * Read from GestoreDBWrapper and write a csv file with all the records that must be processed
      *
-     * @param writer
+     * @param
      * @return Step
      */
     @Bean
@@ -167,7 +168,9 @@ public class Fee12MonthJobConfiguration {
                 })
                 .reader(fee12MonthDatasetReader())
                 //.processor(personprocessor())
-                .writer(step1Writer()).taskExecutor(taskExecutor()).throttleLimit(MAX_THREAD).build();
+                .writer(step1Writer())
+                .taskExecutor(taskExecutor()).throttleLimit(MAX_THREAD)
+                .build();
     }
 
 
