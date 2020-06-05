@@ -72,7 +72,9 @@ public class Fee12MonthDatasetReader implements ItemReader<FeeDTO> {
         data = new ArrayList<>();
 
         //Data stub
-        for (int i = 1; i <= 100_000; i++) {
+        int howMany = 100_000;
+      //  howMany = 200;
+        for (int i = 1; i <= howMany; i++) {
             FeeDTO feeDTO = new FeeDTO();
             feeDTO.setId(Long.parseLong(String.valueOf(i)));
             feeDTO.setPan(String.valueOf(UUID.randomUUID()).substring(16));

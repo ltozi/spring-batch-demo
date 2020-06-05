@@ -1,6 +1,7 @@
 package com.example.batchprocessing.job;
 
 import com.example.batchprocessing.data.FeeDTO;
+import com.example.batchprocessing.data.FeeDTOItemProcessor;
 import com.example.batchprocessing.data.Person;
 import com.example.batchprocessing.data.PersonItemProcessor;
 import com.example.batchprocessing.listener.JobCompletionNotificationListener;
@@ -15,12 +16,10 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,8 +36,8 @@ import java.time.format.DateTimeFormatter;
 @EnableBatchProcessing
 public class Fee12MonthJobConfiguration {
 
-    private static final int MAX_THREAD = 2;
-    private static final int CHUNK_SIZE = 1;
+    private static final int MAX_THREAD = 5;
+    private static final int CHUNK_SIZE = 10;
 
     public JobContext jobContext;
 
@@ -67,36 +66,52 @@ public class Fee12MonthJobConfiguration {
     }
 
 
-    @Bean
-    public FlatFileItemWriter<FeeDTO> csvWriter() {
+    //@Bean
+    public FlatFileItemWriter<FeeDTO> csvWriter(String nameFile) {
         return new FlatFileItemWriterBuilder<FeeDTO>()
                 .name("csvWriter")
                 .encoding("UTF-8")
                 .shouldDeleteIfExists(true)
-                .resource(new FileSystemResource("output/fee12MonthDataset.csv"))
+                .resource(new FileSystemResource(nameFile))
                 .delimited()
                 .delimiter(",")
-                .names(new String[] {"id", "pan", "mobileNumber", "migrated"})
+                .names(new String[]{"id", "pan", "mobileNumber", "migrated"})
                 .build();
+    }
+
+    @Bean
+    FlatFileItemWriter<FeeDTO> step1Writer() {
+        return csvWriter("output/fee12MonthDataset.csv");
+    }
+
+    @Bean
+    FlatFileItemWriter<FeeDTO> step2Writer() {
+        return csvWriter("output/fee12MonthDatasetMigrated.csv");
     }
 
 
     @Bean
-    public FlatFileItemReader<Person> reader() {
-        return new FlatFileItemReaderBuilder<Person>()
-                .name("personItemReader")
-                .resource(new ClassPathResource("sample-data.csv"))
+    public ItemReader<FeeDTO> feeDTOItemReader() {
+        return new FlatFileItemReaderBuilder<FeeDTO>()
+                .name("feeDTOItemReader")
+                .encoding("UTF-8")
+                .resource(new FileSystemResource("output/fee12MonthDataset.csv"))
                 .delimited()
-                .names(new String[]{"firstName", "lastName"})
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<Person>() {{
-                    setTargetType(Person.class);
+                .names(new String[]{"id", "pan", "mobileNumber", "migrated"})
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<FeeDTO>() {{
+                    setTargetType(FeeDTO.class);
                 }})
                 .build();
     }
 
     @Bean
-    public PersonItemProcessor processor() {
+    public PersonItemProcessor personprocessor() {
         return new PersonItemProcessor();
+    }
+
+    @Bean
+    public FeeDTOItemProcessor feeProcessor() {
+        return new FeeDTOItemProcessor();
     }
 
     @Bean
@@ -128,7 +143,7 @@ public class Fee12MonthJobConfiguration {
                 })
                 .listener(listener)
                 .flow(prepareDataStep)
-//                .next(processDataStep)
+                .next(processDataStep)
                 .end()
                 .build();
     }
@@ -141,7 +156,7 @@ public class Fee12MonthJobConfiguration {
      * @return Step
      */
     @Bean
-    public Step prepareDataStep(JdbcBatchItemWriter<Person> writer) {
+    public Step prepareDataStep() {//JdbcBatchItemWriter<Person> writer
         return stepBuilderFactory.get("prepareDataStep")
                 .<FeeDTO, FeeDTO>chunk(CHUNK_SIZE)
                 .faultTolerant().skipPolicy((throwable, i) -> {
@@ -151,30 +166,30 @@ public class Fee12MonthJobConfiguration {
                     return true;
                 })
                 .reader(fee12MonthDatasetReader())
-                .writer(csvWriter())
-                .build();
+                //.processor(personprocessor())
+                .writer(step1Writer()).taskExecutor(taskExecutor()).throttleLimit(MAX_THREAD).build();
     }
 
 
     /**
      * Read CSV -> Process each record -> write something
      *
-     * @param writer
+     * @param
      * @return
      */
     @Bean
-    public Step processDataStep(JdbcBatchItemWriter<Person> writer) {
+    public Step processDataStep() {
         return stepBuilderFactory.get("processDataStep")
-                .<Person, Person>chunk(CHUNK_SIZE)
+                .<FeeDTO, FeeDTO>chunk(CHUNK_SIZE)
                 .faultTolerant().skipPolicy((throwable, i) -> {
                     if (throwable instanceof org.springframework.batch.item.file.FlatFileParseException) {
                         return false;
                     }
                     return true;
                 })
-                .reader(reader())
-                .processor(processor())
-                .writer(writer)
+                .reader(feeDTOItemReader())
+                .processor(feeProcessor())
+                .writer(step2Writer())
                 .taskExecutor(taskExecutor()).throttleLimit(MAX_THREAD)
                 .build();
     }
